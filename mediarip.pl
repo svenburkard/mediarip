@@ -116,21 +116,15 @@ sub getNewEpisodes() {
           $sourceCode =~  m/<Ref href="([^"]+)"\/>/g;
           if(defined($1)){
             $fileName = "$fileName.wmv";
-            $done = 0;
-            $cmd  = "$main::CONFIG->{'MPLAYER_BIN'} -dumpstream -dumpfile $fileName $1 1>/dev/null 2>&1";
+            $cmd  = "$main::CONFIG->{'MPLAYER_BIN'} -dumpstream -dumpfile $fileName $1 2>&1";
             &func::printDebug($cmd);
-            $debug  = system($cmd);
+            $debug  = `$cmd`;
 
-            while($done != 1){
-              if(defined($debug) && $debug == 0){
-                $done = 1;
-              }else{
-                &func::printError("$sourceName ($showName/$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}) download failed: $cmd");
-                sleep(30);
-
-                $debug  = system($cmd);
-              }
+            if(!defined($debug) || $debug !~ m/Everything done\./g){
+              &func::printError("$sourceName ($showName/$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}) download failed");
+              next NEXT_SHOW;
             }
+
             if(-e $fileName){
               &func::printDebug("$fileName successfully downloaded");
             }else{
@@ -179,7 +173,7 @@ sub expandDoneLogFile() {
   my $url         = shift();  
 
   if(!-e $main::CONFIG->{'DATA_STORE_NAME_DONE'}){
-    &func::printError("can't open $main::CONFIG->{'DATA_STORE_NAME_DONE'} $main::CONFIG->{'DATA_STORE_METHOD'}");
+    &func::printDebug("$main::CONFIG->{'DATA_STORE_NAME_DONE'} doesn't exist and will be created...");
     if(open(DONE, "> $main::CONFIG->{'DATA_STORE_NAME_DONE'}")){
       print DONE "#sourceName;showName;episodeName;date\n";
       close(DONE);

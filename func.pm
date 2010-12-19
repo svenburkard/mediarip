@@ -330,7 +330,7 @@ sub getMediaConfigFile() {
       &printError("$main::CONFIG->{'DATA_STORE_NAME_MEDIA'} doesn't exist, so you have to add some shows first. take a look into the README or ./control.pl --help");
       &cleanExit();
     }elsif($main::SCRIPT eq 'control'){ 
-      &printError("$main::CONFIG->{'DATA_STORE_NAME_MEDIA'} doesn't exist, will be created...");
+      &printDebug("$main::CONFIG->{'DATA_STORE_NAME_MEDIA'} doesn't exist and will be created...");
       if(open(MEDIA, "> $main::CONFIG->{'DATA_STORE_NAME_MEDIA'}")){
         print MEDIA "#sourceName;showName;path\n";
         close(MEDIA);
@@ -845,14 +845,18 @@ sub getSourceCode() {
   $req = new HTTP::Request ('GET',$url);
   $res = $ua->request($req);
 
-  if($res->content ne ''){
-    $sourceCode = $res->content();
+  if($res->is_success){
+    if($res->content ne ''){
+      $sourceCode = &cleanSourceCode($res->content());
+    }else{
+      &printError("can't get sourceCode from $url. perhaps the url or your internet connection is offline. please try again later.");
+      &cleanExit();
+    }
   }else{
-    &printError("can't get sourceCode from $url");
+    &printError("can't get sourceCode from $url. perhaps the url your internet connection is offline. please try again later.");
     &cleanExit();
   }
 
-  $sourceCode = &cleanSourceCode($sourceCode);
 
 
   return($sourceCode);
