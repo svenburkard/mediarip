@@ -1,0 +1,119 @@
+# CONFIG  
+#
+# @DESC  : mediarip configuration file
+#
+#
+# Copyright (C) Sven Burkard
+#
+# This program is free software;you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation; either version 3 of the License, 
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied 
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# 
+# See the GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License 
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+################################################################################
+#
+#
+# turn on for debug prints
+DEBUG=yes
+# DEBUG=no
+# 
+#
+# defines a LOCK file, to make sure, that only one instance of mediarip.pl is running
+LOCK=.mediarip.lock
+# 
+#
+# defines, where to store the media informations;
+# contains sources (e.g.: zdf) and shows (e.g.: SOKO_5113) to check for updates
+DATA_STORE_METHOD=file
+# DATA_STORE_METHOD=db
+#
+#
+# defines, the name of the file/table, which contains the wanted shows 
+DATA_STORE_NAME_MEDIA=MEDIA
+#
+#
+# defines, the name of the file/table, which contains the downloaded data
+DATA_STORE_NAME_DONE=DONE
+#
+#
+# only needed for the db connection, if DATA_STORE is 'db'
+# DB_TYPE=mysql
+#
+#
+# only needed for the db connection, if DATA_STORE is 'db'
+# DB_IP=localhost
+#
+#
+# only needed for the db connection, if DATA_STORE is 'db'
+# DB_USERNAME=
+#
+#
+# only needed for the db connection, if DATA_STORE is 'db' 
+DB_PASSWORD=
+#
+#
+# path where the files will stored 
+DATA_PATH=/tmp/videos/
+#
+#
+# defines the filname format
+DATA_FILE_NAME_FORMAT=show/date_-_episode.EXT
+# DATA_FILE_NAME_FORMAT=show/date-episode.EXT
+# DATA_FILE_NAME_FORMAT=show/episode_-_date.EXT
+# DATA_FILE_NAME_FORMAT=show/episode-date.EXT
+# DATA_FILE_NAME_FORMAT=show/episode.EXT
+# DATA_FILE_NAME_FORMAT=show-episode-date.EXT
+# DATA_FILE_NAME_FORMAT=show_-_episode_-_date.EXT
+# DATA_FILE_NAME_FORMAT=show-episode.EXT
+# DATA_FILE_NAME_FORMAT=date-show-episode.EXT
+# DATA_FILE_NAME_FORMAT=date_-_show_-_episode.EXT
+#
+#
+# defines the path to your mplayer binary
+MPLAYER_BIN=/usr/bin/mplayer
+#
+#
+# automatic convert the loaded media file to a new format
+CONVERT=yes
+# CONVERT=no
+#
+#
+# defines the path to your mencoder binary
+CONVERT_BIN=/usr/bin/mencoder
+#
+#
+# defines the container to use
+CONVERT_CONTAINER=mkv
+# CONVERT_CONTAINER=avi
+#
+#
+# defines the audio codec to use
+CONVERT_AUDIO_CODEC=mp3lame
+# CONVERT_AUDIO_CODEC=copy
+#
+#               
+# defines the video codec to use
+CONVERT_VIDEO_CODEC=x264
+# CONVERT_VIDEO_CODEC=xvid
+#
+#
+# defines the the convert quality to use
+# high is recommended
+#               highest:
+#                         x264, -x264encopts qp=20
+#                         xvid, -xvidencopts fixed_quant=1
+#               high: 
+#                         x264, -x264encopts qp=26
+#                         xvid, -xvidencopts fixed_quant=4
+CONVERT_QUALITY=high
+# CONVERT_QUALITY=highest
+#
+

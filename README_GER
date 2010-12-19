@@ -1,0 +1,87 @@
+mediarip
+============
+
+Dieses Perl Projekt ermoeglicht es, Videos von Mediatheken wie z.B.: der 'ZDFmediathek' voll automatisch herunter zu laden
+und falls gewuenscht gleich in ein anderes Format zu transcodieren.
+
+Dazu ist keinerlei Browser oder grafische Oberflaeche noetig.
+
+Sie muessen lediglich die Sendungen definieren, an denen sie interessiert sind.
+Bei jedem Start von mediarip wird dann automatisch nach neuen Folgen ihrer Serien gesucht, 
+die dann herunter geladen und anschliessend in ihr gewuenschtes Format transcodiert werden.
+
+Tipp: Um mediarip komplett automatisiert arbeiten zu lassen, ist ein cronjob zu empfehlen.
+
+
+Abhaengigkeiten
+---------------
+
+- ein paar Perl Module
+
+    LWP::UserAgent
+    DBI             # wird nur benoetigt, wenn DATA_STORE_METHOD in der CONFIG auf 'db' gesetzt ist
+
+- mencoder,         # wird nur benoetigt, wenn CONVERT in der CONFIG auf 'yes' gesetzt wurde 
+                    # muss mit der Unterstuetzung fuer folgende Bibliotheken gebaut worden sein: libmp3lame, libx264 und libxvidcore
+- mplayer
+
+
+aktuelle Version herunter laden 
+-------------------------------
+
+    git clone git://github.com/svenburkard/mediarip.git
+
+
+Konfiguration
+-------------
+
+Sie muessen lediglich die CONFIG Datei ihren Wuenschen entsprechend bearbeiten.
+Hierbei ist zu beachten, dass manche Einstellungen Abhaengigkeiten haben.
+
+Wenn sie als DATA_STORE_METHOD eine Datenbank verwenden, muessen sie eine entsprechende Datenbank 
+mit dem Namen 'mediarip' anlegen und einen Benutzer mit den noetigen Rechten erstellen.
+
+
+Anwendung
+---------
+
+Zu aller erst muessen sie eine oder mehrere Sendungen definieren, die auf neue Folgen hin ueberprueft werden sollen. 
+Also lassen sie sich erst einmal die verfuegbaren Sendungen auflisten
+
+    ./control.pl --list on
+
+Eine beispielhafte Zeile des Ergebnisses waere z.B.: 'zdf: SOKO_5113'
+Nun tragen sie einen neuen Eintrag in die MEDIA Liste ein.
+
+    ./control.pl --add --source='zdf' --show='SOKO_5113'
+
+Sie koennen ebenfalls einen alternativen Pfad fuer diese Sendungen definieren, wenn der standard Pfad nicht verwendet werden soll.
+
+    ./control.pl --add --source='zdf' --show='SOKO_5113' --path='/video/'
+
+Es koennen anschliessend ganz einfach die bereits von ihnen eingetragenen Sendungen aufgelistet werden.
+
+    ./control.pl --list off
+
+Natuerlich kann eine Sendung auch wieder von ihrer MEDIA Liste geloescht werden.
+
+    ./control.pl --del --source='zdf' --show='SOKO_5113'
+
+
+Weitergehende Informationen ueber das control Script erhalten sie mit 
+    
+    ./control.pl --help
+
+
+Nun koennen sie einfach das mediarip Script aufrufen
+
+    ./mediarip.pl
+
+
+Fuer eine perfekte Konfiguration von mediarip sollten sie nun noch einen crontab Eintrag erstellen, 
+damit ihre Sendungen komplett automatisch aktualisiert werden.
+Das unten stehende Beispiel zeigt einen cronjob, der alle 60 Minuten das mediarip Script startet.
+
+    */60 *    * * *  user  cd /path/to/mediarip/ && /path/to/mediarip/mediarip.pl
+
+

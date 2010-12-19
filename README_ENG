@@ -1,0 +1,83 @@
+mediarip
+============
+
+The goal of this project is, to fully automatic download videos from media libraries like 'ZDFmediathek'.
+Mediarip also can transcode the downloaded files on the fly, if wanted.
+You just have to define some shows, which you are interested in.
+Then mediarip will automatic check for new episodes of your shows and download and transcode them,
+each time the mediarip script is started.
+
+Tip: start mediarip as cronjob for a fully automatic setup.
+
+
+Dependencies
+------------
+
+- some Perl modules
+
+    LWP::UserAgent
+    DBI             # only needed, if DATA_STORE_METHOD is set to 'db' in CONFIG
+
+- mencoder          # only needed, if CONVERT is set to 'yes' in CONFIG 
+                    # builded with libmp3lame, libx264 and libxvidcore  
+- mplayer
+
+
+Cloning
+-------
+
+    git clone git://github.com/svenburkard/mediarip.git
+
+
+Configuring
+-----------
+
+You just have to fill the CONFIG file with your values.
+Some settings have dependencies to other ones.
+
+If you use a database as DATA_STORE_METHOD, you need to create a database named 'mediarip'
+and a user, which has access to this database.
+
+
+Using
+-----
+
+First of all, you need to add some shows, which should be checked for new episodes from mediarip.
+So you are looking for all available shows from one source.
+
+    ./control.pl --list on
+
+One example line of the result could be 'zdf: SOKO_5113'
+Now you gonna add this entry to our MEDIA list.
+
+    ./control.pl --add --source='zdf' --show='SOKO_5113'
+
+You could also define a alternative path for a show, if the default path shouldn't be used.
+
+    ./control.pl --add --source='zdf' --show='SOKO_5113' --path='/video/'
+
+You can simply get all shows, you added.
+
+    ./control.pl --list off
+
+A show can also be deleted from your MEDIA list.
+
+    ./control.pl --del --source='zdf' --show='SOKO_5113'
+
+
+Further informations about the control script you got with
+    
+    ./control.pl --help
+
+
+Now you can simply start the main script vom mediarip.
+
+    ./mediarip.pl
+
+
+For a perfect setup you should create a crontab entry for mediarip.pl, so your shows gonna updated fully automatic.
+Given example shows a cronjob, that starts every 60 minutes the mediarip script.
+
+    */60 *    * * *  user  cd /path/to/mediarip/ && /path/to/mediarip/mediarip.pl
+
+
