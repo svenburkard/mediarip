@@ -29,7 +29,7 @@ Abhaengigkeiten
 aktuelle Version herunter laden 
 -------------------------------
 
-    git clone git://github.com/svenburkard/mediarip.git
+    git clone http://git.sven-burkard.de/mediarip/
 
 
 Konfiguration
@@ -82,6 +82,6 @@ Fuer eine perfekte Konfiguration von mediarip sollten sie nun noch einen crontab
 damit ihre Sendungen komplett automatisch aktualisiert werden.
 Das unten stehende Beispiel zeigt einen cronjob, der alle 60 Minuten das mediarip Script startet.
 
-    */60 *    * * *  user  cd /path/to/mediarip/ && /path/to/mediarip/mediarip.pl
+    */60 *    * * *  user  cd /pfad/bis/mediarip/ && /pfad/bis/mediarip/mediarip.pl
 
 

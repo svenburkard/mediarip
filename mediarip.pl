@@ -74,6 +74,8 @@ sub getNewEpisodes() {
   my $done;
   my $debug;
   my $fileName;
+  my $try;
+  my $tryMax      = 3;
 
   foreach $sourceName(sort keys %{$main::SHOWS}){
     foreach $showName(sort keys %{$main::SHOWS->{$sourceName}}){
@@ -117,25 +119,31 @@ sub getNewEpisodes() {
           if(defined($1)){
             $fileName = "$fileName.wmv";
             $cmd  = "$main::CONFIG->{'MPLAYER_BIN'} -dumpstream -dumpfile $fileName $1 2>&1";
-            &func::printDebug($cmd);
-            $debug  = `$cmd`;
 
-            if(!defined($debug) || $debug !~ m/Everything done\./g){
-              &func::printError("$sourceName ($showName/$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}) download failed");
-              next NEXT_SHOW;
+            $try  = 0;
+            $done = 0;
+            while($try<$tryMax){
+              $try++;
+              &func::printDebug($cmd);
+              $debug  = `$cmd`;
+              if(defined($debug) && $debug =~ m/Everything done\./g){
+                $try  = $tryMax;
+                $done = 1;
+              }else{
+                &func::printError("$sourceName ($showName/$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}) download failed. try $try of $tryMax");
+                sleep(2);
+              }
             }
 
-            if(-e $fileName){
+            if($done == 1 && -e $fileName){
               &func::printDebug("$fileName successfully downloaded");
             }else{
-              &func::printError("$sourceName ($showName/$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}) download failed");
+              &func::printError("$sourceName ($showName/$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}) download failed. will jump to the next episode, if more are available.");
               next NEXT_SHOW;
-#               &func::cleanExit();
             }
 
-            &transcode($fileName);            
+            &transcode($fileName);
             &expandDoneLog($sourceName,$showName,$url);
-
 
           }else{
             &func::printError("videoUrl is not defined; asx container changed?");
@@ -251,7 +259,7 @@ sub transcode() {
       $fileNameNew =~  s/\.[^\.]+$/\.avi/g
     }elsif($main::CONFIG->{'CONVERT_CONTAINER'} eq 'mkv'){
       $fileNameNew =~  s/\.[^\.]+$/\.mkv/g
-    }    
+    }
     if($main::CONFIG->{'CONVERT_VIDEO_CODEC'} eq 'xvid'){
       if($main::CONFIG->{'CONVERT_QUALITY'} eq 'high'){
         $options  = "-xvidencopts fixed_quant=4";
@@ -265,39 +273,36 @@ sub transcode() {
         $options  = "-x264encopts qp=20";
       }
     }
-  }
-
-  if($fileName eq $fileNameNew){
-    &func::printError("filName has not changed; check the regex");
-    next NEXT_SHOW;
-#     &func::cleanExit();
-  }
-  
-  if(!defined($options)){
-    &func::printError("transcoding options not set correctly, check all settings, which starging with CONVERT_ at your CONFIG");
-    next NEXT_SHOW;
-#     &func::cleanExit();
-  }
-
-  $done = 0;
-  $cmd  = "$main::CONFIG->{'CONVERT_BIN'} $fileName -ovc $main::CONFIG->{'CONVERT_VIDEO_CODEC'} -oac $main::CONFIG->{'CONVERT_AUDIO_CODEC'} $options -o $fileNameNew 1>/dev/null 2>&1";
-  &func::printDebug($cmd);
-  $debug  = system($cmd);
-
-  while($done != 1){
-    if(defined($debug) && $debug == 0){
-      $done = 1;
-    }else{
-      &func::printError("$fileName transcode failed: $cmd");
-      sleep(30);
-      $debug  = system($cmd);
+    if($fileName eq $fileNameNew){
+      &func::printError("filName has not changed; check the regex");
+      next NEXT_SHOW;
     }
-  }
 
-  &func::printDebug("$fileNameNew successfully transcoded");
-  if(unlink($fileName)){
-    &func::printDebug("$fileName successfully deleted");
-  }else{
-    &func::printError("can't delete $fileName");
+    if(!defined($options)){
+      &func::printError("transcoding options not set correctly, check all settings, which starging with CONVERT_ at your CONFIG");
+      next NEXT_SHOW;
+    }
+
+    $done = 0;
+    $cmd  = "$main::CONFIG->{'CONVERT_BIN'} $fileName -ovc $main::CONFIG->{'CONVERT_VIDEO_CODEC'} -oac $main::CONFIG->{'CONVERT_AUDIO_CODEC'} $options -o $fileNameNew 1>/dev/null 2>&1";
+    &func::printDebug($cmd);
+    $debug  = system($cmd);
+
+    while($done != 1){
+      if(defined($debug) && $debug == 0){
+        $done = 1;
+      }else{
+        &func::printError("$fileName transcode failed: $cmd");
+        sleep(30);
+        $debug  = system($cmd);
+      }
+    }
+
+    &func::printDebug("$fileNameNew successfully transcoded");
+    if(unlink($fileName)){
+      &func::printDebug("$fileName successfully deleted");
+    }else{
+      &func::printError("can't delete $fileName");
+    }
   }
 }

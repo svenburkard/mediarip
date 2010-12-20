@@ -554,6 +554,9 @@ sub getIndexOfAllShows() {
 #--------------------------------------------------
   &getAllShowsFromZDF();
 
+  &checkForNoLongerAvailableShows();  
+
+
   return($func::allShows);
 }
 
@@ -615,6 +618,24 @@ sub getAllShowsFromZDF() {
   if(keys(%{$func::allShows->{'zdf'}}) <= 0){
     &printError("no show from zdf available; layout changed?");
     &cleanExit();
+  }
+}
+
+#--------------------------------------------------
+sub checkForNoLongerAvailableShows() {
+# @AUTHOR:  Sven Burkard
+# @DESC  :  checks for nor longer available shows
+#--------------------------------------------------
+  my $sourceName;
+  my $showName;
+
+  foreach $sourceName(keys %{$main::MEDIA}){
+    foreach $showName(keys %{$main::MEDIA->{$sourceName}}){
+      if(!exists($func::allShows->{$sourceName}->{$showName}->{'url'}) || !defined($func::allShows->{$sourceName}->{$showName}->{'url'})){
+        &printError("$showName is no longer available on $sourceName. you can delete $showName from your $main::CONFIG->{'DATA_STORE_NAME_MEDIA'} list. check ./control --help");
+        delete($main::MEDIA->{$sourceName}->{$showName});
+      }
+    }
   }
 }
 
@@ -835,28 +856,42 @@ sub getSourceCode() {
 # @AUTHOR:  Sven Burkard
 # @DESC  :  gets the source code of a site
 #--------------------------------------------------
-  my $url = shift();
-  my $ua  = new LWP::UserAgent();
+  my $url         = shift();
+  my $ua          = new LWP::UserAgent();
   my $sourceCode;
   my $req;
   my $res;
+  my $try         = 0;
+  my $tryMax      = 3;
 
-  $ua->agent("Mozilla/4.0 (compatible; debian sid)");
-  $req = new HTTP::Request ('GET',$url);
-  $res = $ua->request($req);
+  if(defined($url) && $url ne ''){
+    while($try<$tryMax){
+      $try++;
+      $ua->agent("Mozilla/4.0 (compatible; debian sid)");
+      $req = new HTTP::Request ('GET',$url);
+      $res = $ua->request($req);
 
-  if($res->is_success){
-    if($res->content ne ''){
-      $sourceCode = &cleanSourceCode($res->content());
-    }else{
-      &printError("can't get sourceCode from $url. perhaps the url or your internet connection is offline. please try again later.");
+      if($res->is_success){
+        if($res->content ne ''){
+          $sourceCode = &cleanSourceCode($res->content());
+          $try  = $tryMax;
+        }else{
+          &printError("can't get sourceCode from $url. try $try of $tryMax");
+          sleep(2);
+        }
+      }else{
+        &printError("can't get sourceCode from $url. try $try of $tryMax");
+        sleep(2);
+      }
+    }
+    if(!defined($sourceCode) || $sourceCode eq ''){
+      &printError("can't get sourceCode from $url. tried $tryMax times. perhaps the url or your internet connection is offline. please try again later.");
       &cleanExit();
     }
   }else{
-    &printError("can't get sourceCode from $url. perhaps the url your internet connection is offline. please try again later.");
+    &printError("\$url is not defined.");
     &cleanExit();
   }
-
 
 
   return($sourceCode);
