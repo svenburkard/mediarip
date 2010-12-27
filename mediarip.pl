@@ -183,7 +183,7 @@ sub expandDoneLogFile() {
   if(!-e $main::CONFIG->{'DATA_STORE_NAME_DONE'}){
     &func::printDebug("$main::CONFIG->{'DATA_STORE_NAME_DONE'} doesn't exist and will be created...");
     if(open(DONE, "> $main::CONFIG->{'DATA_STORE_NAME_DONE'}")){
-      print DONE "#sourceName;showName;episodeName;date\n";
+      print DONE "#sourceName;showName;episodeName;date;runTimeInMin\n";
       close(DONE);
       &func::printDebug("$main::CONFIG->{'DATA_STORE_NAME_DONE'} $main::CONFIG->{'DATA_STORE_METHOD'} created");
     }else{
@@ -192,7 +192,7 @@ sub expandDoneLogFile() {
     }
   }
   if(open(DONE, ">> $main::CONFIG->{'DATA_STORE_NAME_DONE'}")){
-    print DONE "$sourceName;$showName;$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'};$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'}\n";
+    print DONE "$sourceName;$showName;$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'};$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'};$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'}\n";
     close(DONE);
   }else{
     &func::printError("$main::CONFIG->{'DATA_STORE_NAME_DONE'} $main::CONFIG->{'DATA_STORE_METHOD'} can not be expanded");
@@ -215,14 +215,14 @@ sub expandDoneLogDB() {
 
   if($o_db = &func::getDB()){
     &func::printDebug("db connection established");
-    $query   =  "SELECT sourceName,showName,episodeName,date ";
+    $query   =  "SELECT sourceName,showName,episodeName,date,runTimeInMin ";
     $query  .=  "FROM $main::CONFIG->{'DATA_STORE_NAME_DONE'} ";
     $query  .=  "LIMIT 1;";
     $sql     =  $o_db->prepare($query);
     if(!$sql->execute){
       &func::printError("table $main::CONFIG->{'DATA_STORE_NAME_DONE'} doesn't exists");
       $query   =  "CREATE TABLE $main::CONFIG->{'DATA_STORE_NAME_DONE'} ";
-      $query  .=  "(id int auto_increment primary key, sourceName varchar(10), showName varchar(40), episodeName varchar(100)), date varchar(9);";
+      $query  .=  "(id int auto_increment primary key, sourceName varchar(10), showName varchar(40), episodeName varchar(100)), date varchar(9), runTimeInMin int;";
       $sql     =  $o_db->prepare($query);
       if($sql->execute){
         &func::printDebug("table $main::CONFIG->{'DATA_STORE_NAME_DONE'} created");
@@ -231,7 +231,7 @@ sub expandDoneLogDB() {
       }
     }
     $query   =  "INSERT INTO $main::CONFIG->{'DATA_STORE_NAME_DONE'} ";
-    $query  .=  "SET sourceName='$sourceName',showName='$showName',episodeName='$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}',date='$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'}';";
+    $query  .=  "SET sourceName='$sourceName',showName='$showName',episodeName='$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}',date='$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'}',runTimeInMin='$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'}';";
     $sql     =  $o_db->prepare($query);
     if(!$sql->execute){
       &func::printError("$main::CONFIG->{'DATA_STORE_NAME_DONE'} $main::CONFIG->{'DATA_STORE_METHOD'} can not be expanded ($query)");

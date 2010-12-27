@@ -1,8 +1,8 @@
 mediarip
 ============
 
-Dieses Perl Projekt ermoeglicht es, Videos von Mediatheken wie z.B.: der 'ZDFmediathek' voll automatisch herunter zu laden
-und falls gewuenscht gleich in ein anderes Format zu transcodieren.
+Mediarip laedt voll automatisch Videos aus der 'ZDFmediathek' herunter 
+und transcodiert diese gleich in ein anderes Format falls gewuenscht.
 
 Dazu ist keinerlei Browser oder grafische Oberflaeche noetig.
 

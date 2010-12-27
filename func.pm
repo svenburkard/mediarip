@@ -534,6 +534,7 @@ sub getIndexOfNewEpisodes() {
           }
           $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}               = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'};
           $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'}               = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'};
+          $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'}       = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'};
           $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'1000'}  = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'1000'};
           $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'2000'}  = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'2000'};
           $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'imageUrl'}           = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'imageUrl'};
@@ -667,9 +668,10 @@ sub getIndexOfAllEpisodesFromZDF() {
           if($lines[$id] =~ m/<\/div>/g){
             $doIt = 0;
           }else{     
-            if($lines[$id] =~  m/<a href="(\/ZDFmediathek\/beitrag\/video\/[^"]+)">VIDEO, \d+ min/ig){
-              if(defined($1)){
+            if($lines[$id] =~  m/<a href="(\/ZDFmediathek\/beitrag\/video\/[^"]+)">VIDEO, (\d+) min/ig){
+              if(defined($1 && $2)){
                 $url  = "http://www.zdf.de$1";
+                $func::allShows->{'zdf'}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'} = $2;
                 @lines2 = split("\n", &getSourceCode($url));
                 $doIt2  = 0;
                 $doIt3  = 0;
@@ -768,7 +770,7 @@ sub getIndexOfAllDownloadedEpisodes() {
     foreach $sourceName(sort keys %{$func::DONE}){
       foreach $showName(sort keys %{$func::DONE->{$sourceName}}){
         foreach $episodeName(sort keys %{$func::DONE->{$sourceName}->{$showName}}){
-          &printDebug("DONE: $sourceName;$showName;$episodeName;$func::DONE->{$sourceName}->{$showName}->{$episodeName}");
+          &printDebug("DONE: $sourceName;$showName;$episodeName;$func::DONE->{$sourceName}->{$showName}->{$episodeName}->{'date'};$func::DONE->{$sourceName}->{$showName}->{$episodeName}->{'runTimeInMin'}");
         }
       }
     }
@@ -784,10 +786,11 @@ sub getIndexOfAllDownloadedEpisodesFile() {
 #--------------------------------------------------
   if(open(DONE, "< $main::CONFIG->{'DATA_STORE_NAME_DONE'}")){
     while(<DONE>){
-      if($_ !~ m/^#/ && $_ =~ m/^([^;]+);([^;]+);([^;]+);([^\n]*)\n/){
+      if($_ !~ m/^#/ && $_ =~ m/^([^;]+);([^;]+);([^;]+);([^;]+);([^\n]*)\n/){
 #         if(defined($1 && $2 && $3) && $1 ne '' && $2 ne ''){
-        if(defined($1 && $2 && $3 && $4) && $1 ne '' && $2 ne '' && $3 ne '' && $4 ne ''){
-          $func::DONE->{$1}->{$2}->{$3} = $4;
+        if(defined($1 && $2 && $3 && $4) && $1 ne '' && $2 ne '' && $3 ne '' && $4 ne '' && $5 ne ''){
+          $func::DONE->{$1}->{$2}->{$3}->{'date'}         = $4;
+          $func::DONE->{$1}->{$2}->{$3}->{'runTimeInMin'} = $5;
         }else{
           &printError("$main::CONFIG->{'DATA_STORE_NAME_DONE'} contains invalid entrys");
           &cleanExit();
@@ -798,7 +801,7 @@ sub getIndexOfAllDownloadedEpisodesFile() {
   }else{
     &printError("can't open $main::CONFIG->{'DATA_STORE_NAME_DONE'} $main::CONFIG->{'DATA_STORE_METHOD'}");
     if(open(DONE, "> $main::CONFIG->{'DATA_STORE_NAME_DONE'}")){
-      print DONE "#sourceName;showName;episodeName;date\n";
+      print DONE "#sourceName;showName;episodeName;date;runTimeInMin\n";
       close(DONE);
       &printDebug("$main::CONFIG->{'DATA_STORE_NAME_DONE'} $main::CONFIG->{'DATA_STORE_METHOD'} created");
     }else{
@@ -823,18 +826,19 @@ sub getIndexOfAllDownloadedEpisodesDB() {
 
   if($o_db = &getDB()){
     &printDebug("db connection established");
-    $query   =  "SELECT sourceName,showName,episodeName,date "; 
+    $query   =  "SELECT sourceName,showName,episodeName,date,runTimeInMin "; 
     $query  .=  "FROM $main::CONFIG->{'DATA_STORE_NAME_DONE'};";
     $sql     =  $o_db->prepare($query);
     if($sql->execute){
       &printDebug("reading table $main::CONFIG->{'DATA_STORE_NAME_DONE'}");
       while(@result = $sql->fetchrow_array()){ 
-        $func::DONE->{$result[0]}->{$result[1]}->{$result[2]} = $result[3];
+        $func::DONE->{$result[0]}->{$result[1]}->{$result[2]}->{'date'}         = $result[3];
+        $func::DONE->{$result[0]}->{$result[1]}->{$result[2]}->{'runTimeInMin'} = $result[4];
       }
     }else{
       &printError("table $main::CONFIG->{'DATA_STORE_NAME_DONE'} doesn't exists");
       $query   =  "CREATE TABLE $main::CONFIG->{'DATA_STORE_NAME_DONE'} ";
-      $query  .=  "(id int auto_increment primary key, sourceName varchar(10), showName varchar(40), episodeName varchar(100), date varchar(10));"; 
+      $query  .=  "(id int auto_increment primary key, sourceName varchar(10), showName varchar(40), episodeName varchar(100), date varchar(10)), runTimeInMin int;"; 
       $sql     =  $o_db->prepare($query);
       if($sql->execute){
         &printDebug("table $main::CONFIG->{'DATA_STORE_NAME_DONE'} created");

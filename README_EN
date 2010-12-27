@@ -1,11 +1,14 @@
 mediarip
 ============
 
-The goal of this project is, to fully automatic download videos from media libraries like 'ZDFmediathek'.
-Mediarip also can transcode the downloaded files on the fly, if wanted.
+Mediarip downloads fully automatic videos from the 'ZDFmediathek' 
+and can also transcode them on the fly, if wanted.
+
+Mediarip doesn't require any browser or graphical interface.
+
 You just have to define some shows, which you are interested in.
-Then mediarip will automatic check for new episodes of your shows and download and transcode them,
-each time the mediarip script is started.
+Then mediarip will automatic check for new episodes of your shows
+and download and transcode them, each time the mediarip script is started.
 
 Tip: start mediarip as cronjob for a fully automatic setup.
 
