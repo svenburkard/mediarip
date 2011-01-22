@@ -124,7 +124,7 @@ sub setConfigVars() {
 #--------------------------------------------------
 sub getConfigVar() {
 # @AUTHOR:  Sven Burkard
-# @DESC  :  returns the $CONFIG->{$var} if everything is ok, or aborts
+# @DESC  :  if everything is okay return 'a', otherwise return 'b'
 #--------------------------------------------------
   my $configData      = shift();
   my $var             = shift();
@@ -511,7 +511,7 @@ sub getDB() {
 #--------------------------------------------------
 sub getIndexOfNewEpisodes() {
 # @AUTHOR:  Sven Burkard
-# @DESC  :  creates a index of new episodes
+# @DESC  :  creates an index of new episodes
 #--------------------------------------------------
   my $sourceName;
   my $showName;
@@ -551,7 +551,7 @@ sub getIndexOfNewEpisodes() {
 #--------------------------------------------------
 sub getIndexOfAllShows() {
 # @AUTHOR:  Sven Burkard
-# @DESC  :  creates a index of all shows
+# @DESC  :  creates an index of all shows
 #--------------------------------------------------
   &getAllShowsFromZDF();
 
@@ -564,7 +564,7 @@ sub getIndexOfAllShows() {
 #--------------------------------------------------
 sub getAllShowsFromZDF() {
 # @AUTHOR:  Sven Burkard
-# @DESC  :  creates a index of all shows from zdf
+# @DESC  :  creates an index of all shows from zdf
 #--------------------------------------------------
   my $sourceCode;
   my $url;
@@ -643,7 +643,7 @@ sub checkForNoLongerAvailableShows() {
 #--------------------------------------------------
 sub getIndexOfAllEpisodesFromZDF() {
 # @AUTHOR:  Sven Burkard
-# @DESC  :  creates a index of all episodes from zdf
+# @DESC  :  creates an index of all episodes from zdf
 #--------------------------------------------------
   my $showName;
   my $episodeName;

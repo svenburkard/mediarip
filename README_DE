@@ -85,3 +85,14 @@ Das unten stehende Beispiel zeigt einen cronjob, der alle 60 Minuten das mediari
     */60 *    * * *  user  cd /pfad/bis/mediarip/ && /pfad/bis/mediarip/mediarip.pl
 
 
+Projekt Seite
+-------------
+http://mediarip.de
+
+
+Autor
+-----
+Sven Burkard - dev@sven-burkard.de
+
+http://sven-burkard.de
+
