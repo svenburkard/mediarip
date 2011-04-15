@@ -528,18 +528,46 @@ sub getIndexOfNewEpisodes() {
       foreach $url(sort keys %{$func::allShows->{$sourceName}->{$showName}->{'episode'}}){
         if(!defined($func::DONE->{$sourceName}->{$showName}->{$func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}}) && !exists($func::DONE->{$sourceName}->{$showName}->{$func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}})){
           if(exists($main::MEDIA->{'zdf'}->{$showName}) && defined($main::MEDIA->{'zdf'}->{$showName}) && $main::MEDIA->{'zdf'}->{$showName} ne ''){
-            $main::SHOWS->{$sourceName}->{$showName}->{'path'} = $main::MEDIA->{$sourceName}->{$showName}; 
-          }else{ 
-            $main::SHOWS->{$sourceName}->{$showName}->{'path'} = $main::CONFIG->{'DATA_PATH'}; 
+            $main::SHOWS->{$sourceName}->{$showName}->{'path'} = $main::MEDIA->{$sourceName}->{$showName};
+          }else{
+            $main::SHOWS->{$sourceName}->{$showName}->{'path'} = $main::CONFIG->{'DATA_PATH'};
           }
-          $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}               = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'};
-          $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'}               = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'};
-          $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'}       = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'};
-          $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'1000'}  = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'1000'};
-          $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'2000'}  = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'2000'};
-          $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'imageUrl'}           = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'imageUrl'};
-          $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'text'}               = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'text'};
-        }
+          if(defined($func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'})){
+            $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}               = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'};
+          }else{
+            &printError("can't get episode name from $showName ($sourceName); layout changed?");
+          }
+          if(defined($func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'})){
+            $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'}               = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'date'};
+          }else{
+            &printError("can't get date from $showName ($sourceName); layout changed?");
+          }
+          if(defined($func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'})){
+            $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'}       = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'runTimeInMin'};
+          }else{
+            &printError("can't get runTimeInMin from $showName ($sourceName); layout changed?");
+          }
+          if(defined($func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'1000'})){
+            $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'1000'}  = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'1000'};
+          }else{
+            &printError("can't get quality_1000 from $showName ($sourceName); layout changed?");
+          }
+          if(defined($func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'2000'})){
+            $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'2000'}  = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'quality'}->{'2000'};
+          }else{
+            &printError("can't get quality_2000 from $showName ($sourceName); layout changed?");
+          }
+          if(defined($func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'imageUrl'})){
+            $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'imageUrl'}           = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'imageUrl'};
+          }else{
+            &printError("can't get imageUrl from $showName ($sourceName); layout changed?");
+          }
+          if(defined($func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'text'})){
+            $main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'text'}               = $func::allShows->{$sourceName}->{$showName}->{'episode'}->{$url}->{'text'};
+          }else{
+            &printError("can't get text from $showName ($sourceName); layout changed?");
+          } 
+        } 
       }
     }
   }
@@ -690,7 +718,7 @@ sub getIndexOfAllEpisodesFromZDF() {
                           }else{
                             print STDERR "can't get the episode name of $showName ($url) from zdf; layout changed?\n";
                           }
-                        }elsif($lines2[$id2] =~  m/<p class="datum">.+(\d{2})\.(\d{2})\.(\d{4})<\/p>/g){
+                        }elsif($lines2[$id2] =~  m/<p class="datum">.+(\d{2})\.(\d{2})\.(\d{4})/g){
                           if(defined($1 && $2 && $3)){
                             $func::allShows->{'zdf'}->{$showName}->{'episode'}->{$url}->{'date'} = "$3.$2.$1";
                           }else{
