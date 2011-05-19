@@ -33,7 +33,7 @@ aktuelle Version herunter laden
 
 oder vom github mirror:
 
-    git clone git@github.com:svenburkard/mediarip
+    git clone https://github.com/svenburkard/mediarip.git
 
 
 

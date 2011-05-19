@@ -126,7 +126,11 @@ sub getNewEpisodes() {
               $try++;
               &func::printDebug($cmd);
               $debug  = `$cmd`;
-              if(defined($debug) && $debug =~ m/Everything done\./g){
+              if(defined($debug) && $debug =~ m/Everything done\.|/g){
+                $try  = $tryMax;
+                $done = 1;
+              }elsif(defined($debug) && $debug !~ m/Error while reading network stream/g){
+                &func::printDebug("$sourceName ($showName/$main::SHOWS->{$sourceName}->{$showName}->{'episode'}->{$url}->{'name'}) ignoring small connection faults from $sourceName (for example: too small stream_chunk size)");
                 $try  = $tryMax;
                 $done = 1;
               }else{
