@@ -138,7 +138,7 @@ Cloning
 
 or, from github mirror:
 
-    git clone git@github.com:svenburkard/mediarip
+    git clone https://github.com/svenburkard/mediarip.git
 
 
 Configuring

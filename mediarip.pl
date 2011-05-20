@@ -126,7 +126,7 @@ sub getNewEpisodes() {
               $try++;
               &func::printDebug($cmd);
               $debug  = `$cmd`;
-              if(defined($debug) && $debug =~ m/Everything done\.|/g){
+              if(defined($debug) && $debug =~ m/Everything done\./g){
                 $try  = $tryMax;
                 $done = 1;
               }elsif(defined($debug) && $debug !~ m/Error while reading network stream/g){
